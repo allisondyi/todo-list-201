@@ -12,4 +12,9 @@ public class Task {
 		this.dueDay = dueDay;
 		this.dueYear = dueYear;
 	}
+	
+	//We must have a no argument constructor for de-serialization to work
+	public Task() {
+		
+	}
 }
