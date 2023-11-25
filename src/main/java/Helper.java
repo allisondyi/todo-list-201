@@ -1,7 +1,13 @@
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 
 
 public class Helper {
@@ -20,8 +26,16 @@ public class Helper {
 	
 	
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
+		FileInputStream refreshToken = new FileInputStream("todo-list-201/todo-list-201-firebase-adminsdk-jlgqg-a360662814.json");
+
+		FirebaseOptions options = FirebaseOptions.builder()
+		    .setCredentials(GoogleCredentials.fromStream(refreshToken))
+		    .setDatabaseUrl("https://<DATABASE_NAME>.firebaseio.com/")
+		    .build();
+
+		FirebaseApp.initializeApp(options);
 		
 	}
 
