@@ -281,6 +281,8 @@ public class Helper {
 			TList newList = new TList(listName);
 			newList.SetID(newID);
 
+			c.tlists.add(newList);
+
 			if (SyncUserChanges())
 				return 1;
 			return -2;
@@ -294,7 +296,7 @@ public class Helper {
 	 * list with ID not found, -1 if category with ID is not found, -2 if fail to
 	 * sync with cloud
 	 */
-	public static int RenameList(int listID, int categoryID) {
+	public static int UpdateListName(int listID, int categoryID, String newName) {
 		try {
 			Category c = currentUserPtr.categories.get(categoryID);
 			if (c == null)
@@ -304,6 +306,7 @@ public class Helper {
 			if (tList == null)
 				return 0;
 
+			tList.listName = newName;
 			if (SyncUserChanges())
 				return 1;
 			return -2;
@@ -325,12 +328,66 @@ public class Helper {
 
 			c.tlists.remove(listID);
 
+			// We need to update taskID for tasks after this index
+			for (int i = listID; i < c.tlists.size(); i++) {
+				c.tlists.get(i).SetID(i);
+			}
 			if (SyncUserChanges())
 				return 1;
 			return -2;
 		} catch (IndexOutOfBoundsException e) {
 			return 0;
 		}
+	}
+
+	////// Category Stuff///////////
+	/** Returns 1 if success, -2 if fail to sync with cloud */
+	public static int AddCategory(String categoryName) {
+		Category c = new Category(categoryName);
+		currentUserPtr.categories.add(c);
+		c.SetID(currentUserPtr.categories.size() - 1);
+
+		if (SyncUserChanges())
+			return 1;
+
+		return -2;
+	}
+
+	/**
+	 * Returns 1 if success, -1 if category with ID not found, -2 if fail to sync
+	 * with cloud
+	 */
+	public static int UpdateCategoryName(int categoryID, String newName) {
+		try {
+			Category c = currentUserPtr.categories.get(categoryID);
+			if (c == null)
+				return -1;
+
+			c.categoryName = newName;
+			if (SyncUserChanges())
+				return 1;
+			return -2;
+		} catch (IndexOutOfBoundsException e) {
+			return -1;
+		}
+
+	}
+
+	/**
+	 * Return 1 if success, -1 if category with ID not found, -2 if fail to sync
+	 * with cloud
+	 */
+	public static int UpdateCategoryName(int categoryID) {
+		try {
+			currentUserPtr.categories.remove(categoryID);
+
+			if (SyncUserChanges())
+				return 1;
+			return -2;
+		} catch (IndexOutOfBoundsException e) {
+			return -1;
+		}
+
 	}
 
 ///////////// Internal Helpers///////////////////////////

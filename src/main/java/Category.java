@@ -7,14 +7,8 @@ public class Category {
 	public int categoryID;
 	public List<TList> tlists = new ArrayList<TList>();
 	
-	public Category(String categoryName, List<TList> todoLists) {
+	public Category(String categoryName) {
 		this.categoryName = categoryName;
-		
-		if(todoLists == null || todoLists.size() == 0) {
-			return;
-		}
-		
-		this.tlists = todoLists;
 	}
 	
 	public void SetID(int id) {
