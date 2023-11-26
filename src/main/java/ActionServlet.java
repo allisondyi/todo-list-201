@@ -726,7 +726,7 @@ public class ActionServlet extends HttpServlet {
 				break;
 			}
 			
-			// remove an existing list, need a category id and list id
+			// remove a category, need a category ID 
 			case "RemoveCategory": {
 	
 				// Validate has valid category ID
