@@ -37,15 +37,15 @@ public class Helper {
 
 	///////////// Core Functions (Offline: Sorting)//////////
 
-	// Sorts the list of tasks by due date
+	/** Sorts the list of tasks by due date */
 	public static List<Task> SortTasks(List<Task> input) {
 		Collections.sort(input, new DueDateSort());
 		return input;
 	}
 
-	// Returns 1 for success, 0 for no user with email found, -1 for incorrect
-	// password
-	// Initilizes currentUserPtr if success
+	/** Returns 1 for success, 0 for no user with email found, -1 for incorrect
+	 password
+	 Initilizes currentUserPtr if success */
 	public static int AuthenticateLogin(String email, String passowrd) {
 		DocumentReference docRef = db.collection("users").document(email);
 		// asynchronously retrieve the document
@@ -103,7 +103,7 @@ public class Helper {
 		// AddUser("fuck@gmail.com", "Kevin", "Yang", "123");
 	}
 
-	// Core: Starts Firestore
+	/** Core: Starts Firestore */
 	public static void InitializeFirestore() {
 		if (_initialized)
 			return;
@@ -132,8 +132,8 @@ public class Helper {
 	}
 /////////////Public: Core Task Modification Functions////////
 
-/**Returns 1 if successful, 0 if category not found, -1 if list not found -2 if sync fail*/
-/**Assumes inputs are not processed: not null and .trim.length > 0*/
+/**Returns 1 if successful, 0 if category not found, -1 if list not found -2 if sync fail
+	Assumes inputs are not processed: not null and .trim.length > 0 */
 	public static int AddTask(String taskName, String taskDescription, String dueDate, int listID, int categoryID) {
 		Category c = currentUserPtr.categories.get(categoryID);
 		if (c == null)
@@ -158,7 +158,7 @@ public class Helper {
 		return -2;
 	}
 
-	/**Removes the given taskID from todolist with listID inside category with categoryID
+	/** Removes the given taskID from todolist with listID inside category with categoryID
 	 1 if success, 0 if listID invalid, -1 if categoryID invalid */
 	public static int RemoveTask(int taskID, int listID, int categoryID) {
 		try {
@@ -186,9 +186,9 @@ public class Helper {
 		}
 	}
 
-	// Public core function to update task due date
-	// 1 if success, 0 if task not found, -1 if due date parse fails, -2 if sync
-	// with cloud fails
+	/** Public core function to update task due date
+	 1 if success, 0 if task not found, -1 if due date parse fails, -2 if sync
+	 with cloud fails */
 	public static int UpdateTaskDueDate(int taskID, int listID, int categoryID, String duedateString) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
@@ -204,9 +204,9 @@ public class Helper {
 		return -2;
 	}
 
-	// Public core function to update task name 
-	// 1 if success, 0 if task not found, -1 if name not valid, -2 if sync fail
-	// with cloud fails
+	/** Public core function to update task name 
+	 1 if success, 0 if task not found, -1 if name not valid, -2 if sync fail
+	 with cloud fails */
 	public static int UpdateTaskName(int taskID, int listID, int categoryID, String newName) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
@@ -222,10 +222,10 @@ public class Helper {
 		return -2;
 	}
 
-	// Public core function to update task description
-	// 1 if success, 0 if task not found, -1 if description not valid, -2 if sync
-	// fail
-	// with cloud fails
+	/** Public core function to update task description
+	 1 if success, 0 if task not found, -1 if description not valid, -2 if sync
+	 fail
+	 with cloud fails */
 	public static int UpdateTaskDescription(int taskID, int listID, int categoryID, String newDescription) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
@@ -241,10 +241,10 @@ public class Helper {
 		return -2;
 	}
 
-	// Public core function to update task completion state
-	// 1 if success, 0 if task not found, -2 if sync
-	// fail
-	// with cloud fails
+	/** Public core function to update task completion state
+	 1 if success, 0 if task not found, -2 if sync
+	 fail
+	 with cloud fails */
 	public static int UpdateTaskCompletionState(int taskID, int listID, int categoryID, boolean newState) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
@@ -260,8 +260,8 @@ public class Helper {
 	}
 
 ///////////// Internal Helpers///////////////////////////
-	// Returns true if successfully set, returns false if failed to parse
-//This is the internal helper, for updating task due date, use UpdateTaskDueDate() as it will sync change
+	/** Returns true if successfully set, returns false if failed to parse
+	This is the internal helper, for updating task due date, use UpdateTaskDueDate() as it will sync change */
 	private static boolean SetTaskDueDate(Task t, String dueDateString) {
 		String[] parts = dueDateString.split("/");
 
@@ -279,7 +279,7 @@ public class Helper {
 
 	}
 
-//Returns a category if found in currentUserPtr categories, null if not found
+	/** Returns a category if found in currentUserPtr categories, null if not found */
 	private static Category GetCategory(String categoryName) {
 		for (Category c : currentUserPtr.categories) {
 			if (c.categoryName.equals(categoryName)) {
@@ -290,8 +290,8 @@ public class Helper {
 		return null;
 	}
 
-//Returns a todo list by name if found within provided category
-//Note: Only searches provided category
+	/** Returns a todo list by name if found within provided category
+	Note: Only searches provided category */
 	private static TList GetTList(String listName, Category category) {
 		for (TList t : category.tlists) {
 			if (t.listName.equals(listName)) {
@@ -328,8 +328,8 @@ public class Helper {
 		return null;
 	}
 
-//Returns a list of todo-lists foud within any category with this name
-//List is length 0 if not found any
+	/**Returns a list of todo-lists foud within any category with this name
+	List is length 0 if not found any */
 	private static List<TList> GetTLists(String listName) {
 		List<TList> results = new ArrayList<TList>();
 		for (Category c : currentUserPtr.categories) {
@@ -345,7 +345,7 @@ public class Helper {
 
 ///////////// Database Firestore stuff///////////////////////
 
-	// Core Sync function, syncs memory cached User data with Firestore
+	/** Core Sync function, syncs memory cached User data with Firestore */
 	public static boolean SyncUserChanges() {
 		if (currentUserPtr == null)
 			return false;
@@ -367,7 +367,7 @@ public class Helper {
 		}
 	}
 
-	// Adds a user to Firestore database, when success sets currentUserPtr to it
+	/** Adds a user to Firestore database, when success sets currentUserPtr to it */
 	public static void AddUser(String email, String fname, String lname, String password) {
 
 		// Reference to the 'users' collection
@@ -393,10 +393,10 @@ public class Helper {
 
 	}
 
-	// This is called to set the currentUserPtr
-	// Gets user data from Firestore, this assues that we have already authenticated
-	// user thus we are getting by
-	// document ID, which is just the user's email
+	/** This is called to set the currentUserPtr
+	 Gets user data from Firestore, this assues that we have already authenticated
+	 user thus we are getting by
+	 document ID, which is just the user's email */
 	public static boolean InternalInitializeUser(String email) {
 		DocumentReference docRef = db.collection("users").document(email);
 		// asynchronously retrieve the document

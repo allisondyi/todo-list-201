@@ -60,6 +60,7 @@ public class AccountServlet extends HttpServlet {
 				&& lastname != null && lastname.trim().length() > 0);
 
 		switch (requestedAction) {
+		//for login
 		case "login":
 			if (!hasValidLoginCredentials) {
 				// Reject with bad request, return error message as JSON
@@ -95,6 +96,7 @@ public class AccountServlet extends HttpServlet {
 			}
 			break;
 
+		//for SignUp
 		case "signup":
 			if (!hasValidLoginCredentials) {
 				// Reject with bad request, return error message as JSON

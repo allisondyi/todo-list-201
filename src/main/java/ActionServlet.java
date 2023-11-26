@@ -69,131 +69,135 @@ public class ActionServlet extends HttpServlet {
 		int categoryID = actionData.has("cID") ? actionData.get("cID").getAsInt() : -1;
 
 		switch (requestedAction) {
-		// Add task needs taskname, taskdescp, listID (to add to), categoryID (category
-		// the list is in)
-		case "addTask": {
-			if (!hasValidAddTaskFields) {
+			// Add task needs taskname, taskdescp, listID (to add to), categoryID (category
+			// the list is in)
+			case "addTask": {
+				if (!hasValidAddTaskFields) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Missing fields required for adding a task"));
+					pw.flush();
+					return;
+				}
+	
+				// Validate has valid category ID
+				if (categoryID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Validate has valid list ID
+				if (listID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("List ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Now we have valid IDs and stuff
+				int result = Helper.AddTask(taskName, taskDescription, taskDueDate, listID, categoryID);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case 0:
+						errorString = "Category with ID is not found";
+						break;
+					case -1:
+						errorString = "List with ID is not found";
+						break;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
 				// Reject with bad request, return error message as JSON
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("Missing fields required for adding a task"));
+				pw.write(gson.toJson(errorString));
 				pw.flush();
-				return;
-			}
-
-			// Validate has valid category ID
-			if (categoryID < 0) {
-				// Reject with bad request, return error message as JSON
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("Category ID not valid, must be >= 0"));
-				pw.flush();
-				return;
-			}
-
-			// Validate has valid list ID
-			if (listID < 0) {
-				// Reject with bad request, return error message as JSON
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("List ID not valid, must be >= 0"));
-				pw.flush();
-				return;
-			}
-
-			// Now we have valid IDs and stuff
-			int result = Helper.AddTask(taskName, taskDescription, taskDueDate, listID, categoryID);
-
-			String errorString = "Unexpected Error";
-			switch (result) {
-			case 1:
-				// Respond with User Json
-				// Convert the User object to a JSON string
-				User cloudUserData = Helper.GetCurrentUserData();
-				String cloudUserJson = gson.toJson(cloudUserData);
-				pw.write(cloudUserJson);
-				pw.flush();
-				// Test: Print the JSON string
-				System.out.println(cloudUserJson);
-				return;
-			case 0:
-				errorString = "Category with ID is not found";
-				break;
-			case -1:
-				errorString = "List with ID is not found";
-
-			case -2:
-				errorString = "Failed to sync with cloud";
-				break;
-			}
-			// Reject with bad request, return error message as JSON
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			pw.write(gson.toJson(errorString));
-			pw.flush();
-
-			break;
-		}
-
-		// Remove task needs taskID, listID and categoryID
-		// the list is in)
-		case "removeTask": {
-
-			// Validate has valid task ID
-			if (taskID < 0) {
-				// Reject with bad request, return error message as JSON
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("Task ID not valid, must be >= 0"));
-				pw.flush();
-				return;
-			}
-
-			// Validate has valid category ID
-			if (categoryID < 0) {
-				// Reject with bad request, return error message as JSON
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("Category ID not valid, must be >= 0"));
-				pw.flush();
-				return;
-			}
-
-			// Validate has valid list ID
-			if (listID < 0) {
-				// Reject with bad request, return error message as JSON
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("List ID not valid, must be >= 0"));
-				pw.flush();
-				return;
-			}
-
-			// Now we have valid IDs and stuff
-			int result = Helper.RemoveTask(taskID, listID, categoryID);
-
-			String errorString = "Unexpected Error";
-			switch (result) {
-			case 1:
-				// Respond with User Json
-				// Convert the User object to a JSON string
-				User cloudUserData = Helper.GetCurrentUserData();
-				String cloudUserJson = gson.toJson(cloudUserData);
-				pw.write(cloudUserJson);
-				pw.flush();
-				// Test: Print the JSON string
-				System.out.println(cloudUserJson);
-				return;
-			case 0:
-				errorString = "Category with ID is not found";
-				break;
-			case -1:
-				errorString = "List with ID is not found";
-
-			case -2:
-				errorString = "Failed to sync with cloud";
+	
 				break;
 			}
-			// Reject with bad request, return error message as JSON
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			pw.write(gson.toJson(errorString));
-			pw.flush();
-
-			break;
-		}
+	
+			// Remove task needs taskID, listID and categoryID
+			// the list is in)
+			case "removeTask": {
+	
+				// Validate has valid task ID
+				if (taskID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Task ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Validate has valid category ID
+				if (categoryID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Validate has valid list ID
+				if (listID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("List ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Now we have valid IDs and stuff
+				int result = Helper.RemoveTask(taskID, listID, categoryID);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case 0:
+						errorString = "List with ID is not found";
+						break;
+					case -1:
+						errorString = "category with id is not found / some index out of bound";
+						break;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson(errorString));
+				pw.flush();
+	
+				break;
+			}
+			
+			case "UpdateTaskDueDate": {
+				
+			}
 		}
 
 	}
