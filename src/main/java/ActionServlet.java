@@ -200,7 +200,7 @@ public class ActionServlet extends HttpServlet {
 			
 			// Update task due date needs taskID, listID and categoryID 
 			//and a due date input for this specific task
-			case "UpdateTaskDueDate": {
+			case "updateTaskDueDate": {
 				
 				// Validate has valid task ID
 				if (taskID < 0) {
@@ -272,7 +272,7 @@ public class ActionServlet extends HttpServlet {
 			
 			// Update task name needs taskID, listID and categoryID 
 			//and a task name input for this specific task
-			case "UpdateTaskName": {
+			case "updateTaskName": {
 				
 				// Validate has valid task ID
 				if (taskID < 0) {
@@ -344,7 +344,7 @@ public class ActionServlet extends HttpServlet {
 			
 			// Update task description needs taskID, listID and categoryID 
 			//and a task description input for this specific task
-			case "UpdateTaskDescription": {
+			case "updateTaskDescription": {
 				
 				// Validate has valid task ID
 				if (taskID < 0) {
@@ -416,7 +416,7 @@ public class ActionServlet extends HttpServlet {
 			
 			// Update task completion state needs taskID, listID and categoryID 
 			//and a new bool task completion input for this specific task
-			case "UpdateTaskCompletionState": {
+			case "updateTaskCompletionState": {
 				
 				// Validate has valid task ID
 				if (taskID < 0) {
@@ -477,7 +477,7 @@ public class ActionServlet extends HttpServlet {
 			
 			// Add a new list to the category specified, it will require a 
 			// category ID and a name for the new list
-			case "AddTList": {
+			case "addTList": {
 	
 				// Validate has valid category ID
 				if (categoryID < 0) {
@@ -521,7 +521,7 @@ public class ActionServlet extends HttpServlet {
 			
 			// update a existing list name, need a category id, list id and
 			// a new name for that list
-			case "UpdateListName": {
+			case "updateListName": {
 	
 				// Validate has valid category ID
 				if (categoryID < 0) {
@@ -583,7 +583,7 @@ public class ActionServlet extends HttpServlet {
 			
 			
 			// remove an existing list, need a category id and list id
-			case "RemoveList": {
+			case "removeList": {
 	
 				// Validate has valid category ID
 				if (categoryID < 0) {
@@ -637,7 +637,7 @@ public class ActionServlet extends HttpServlet {
 			}
 			
 			// add category for the user, need category name 
-			case "AddCategory": {
+			case "addCategory": {
 				
 				//validate category name
 				if (categoryName != null && categoryName.trim().length() > 0) {
@@ -676,7 +676,7 @@ public class ActionServlet extends HttpServlet {
 			
 			// update an existing category name, need the id for that category and 
 			// a new name for it 
-			case "UpdateCategoryName": {
+			case "updateCategoryName": {
 	
 				// Validate has valid category ID
 				if (categoryID < 0) {
@@ -727,7 +727,7 @@ public class ActionServlet extends HttpServlet {
 			}
 			
 			// remove a category, need a category ID 
-			case "RemoveCategory": {
+			case "removeCategory": {
 	
 				// Validate has valid category ID
 				if (categoryID < 0) {
