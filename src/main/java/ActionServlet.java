@@ -474,6 +474,301 @@ public class ActionServlet extends HttpServlet {
 	
 				break;
 			}
+			
+			// Add a new list to the category specified, it will require a 
+			// category ID and a name for the new list
+			case "AddTList": {
+	
+				// Validate has valid category ID
+				if (categoryID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Now we have valid IDs and stuff
+				int result = Helper.AddTList(listName, categoryID);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case 0:
+						errorString = "category with the id is not found";
+						break;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson(errorString));
+				pw.flush();
+	
+				break;
+			}
+			
+			
+			// update a existing list name, need a category id, list id and
+			// a new name for that list
+			case "UpdateListName": {
+	
+				// Validate has valid category ID
+				if (categoryID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+				
+				// Validate has valid list ID
+				if (listID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("List ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+				
+				if (listName != null && listName.trim().length() > 0) {
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("list name must be > 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Now we have valid IDs and stuff
+				int result = Helper.UpdateListName(listID, categoryID, listName);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case 0:
+						errorString = "list with the id is not found";
+						break;
+					case -1:
+						errorString = "category with the id is not found";
+						break;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson(errorString));
+				pw.flush();
+	
+				break;
+			}
+			
+			
+			// remove an existing list, need a category id and list id
+			case "RemoveList": {
+	
+				// Validate has valid category ID
+				if (categoryID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+				
+				// Validate has valid list ID
+				if (listID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("List ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Now we have valid IDs and stuff
+				int result = Helper.RemoveList(listID, categoryID);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case 0:
+						errorString = "list with the id is not found";
+						break;
+					case -1:
+						errorString = "category with the id is not found";
+						break;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson(errorString));
+				pw.flush();
+	
+				break;
+			}
+			
+			// add category for the user, need category name 
+			case "AddCategory": {
+				
+				//validate category name
+				if (categoryName != null && categoryName.trim().length() > 0) {
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("category name must be > 0"));
+					pw.flush();
+					return;
+				}
+				
+				// Now we have valid IDs and stuff
+				int result = Helper.AddCategory(categoryName);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson(errorString));
+				pw.flush();
+	
+				break;
+			}
+			
+			// update an existing category name, need the id for that category and 
+			// a new name for it 
+			case "UpdateCategoryName": {
+	
+				// Validate has valid category ID
+				if (categoryID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+				
+				//validate category name
+				if (categoryName != null && categoryName.trim().length() > 0) {
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("category name must be > 0"));
+					pw.flush();
+					return;
+				}
+
+	
+				// Now we have valid IDs and stuff
+				int result = Helper.UpdateCategoryName(categoryID, categoryName);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case -1:
+						errorString = "category with the id is not found";
+						break;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson(errorString));
+				pw.flush();
+	
+				break;
+			}
+			
+			// remove an existing list, need a category id and list id
+			case "RemoveCategory": {
+	
+				// Validate has valid category ID
+				if (categoryID < 0) {
+					// Reject with bad request, return error message as JSON
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+					pw.flush();
+					return;
+				}
+	
+				// Now we have valid IDs and stuff
+				int result = Helper.RemoveCategory(categoryID);
+	
+				String errorString = "Unexpected Error";
+				switch (result) {
+					case 1:
+						// Respond with User Json
+						// Convert the User object to a JSON string
+						User cloudUserData = Helper.GetCurrentUserData();
+						String cloudUserJson = gson.toJson(cloudUserData);
+						pw.write(cloudUserJson);
+						pw.flush();
+						// Test: Print the JSON string
+						System.out.println(cloudUserJson);
+						return;
+					case -1:
+						errorString = "category with the id is not found";
+						break;
+					case -2:
+						errorString = "Failed to sync with cloud";
+						break;
+				}
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson(errorString));
+				pw.flush();
+	
+				break;
+			}
+			
+			
 		}
 
 	}
