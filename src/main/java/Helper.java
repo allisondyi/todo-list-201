@@ -316,7 +316,7 @@ public class Helper {
 	}
 
 	/**
-	 * Removes a todo list given listID and categoryID, returns 1 if success, 0 if
+	 * Removes a todo list given listID and categoryID returns 1 if success, 0 if
 	 * list with ID not found, -1 if category with ID is not found, -2 if fail to
 	 * sync with cloud
 	 */
@@ -341,7 +341,10 @@ public class Helper {
 	}
 
 	////// Category Stuff///////////
-	/** Returns 1 if success, -2 if fail to sync with cloud */
+	/**
+	 * Adds a new category with categoryName, id auto assigned Returns 1 if success,
+	 * -2 if fail to sync with cloud
+	 */
 	public static int AddCategory(String categoryName) {
 		Category c = new Category(categoryName);
 		currentUserPtr.categories.add(c);
@@ -354,8 +357,8 @@ public class Helper {
 	}
 
 	/**
-	 * Returns 1 if success, -1 if category with ID not found, -2 if fail to sync
-	 * with cloud
+	 * Updates a category by id with new name Returns 1 if success, -1 if category
+	 * with ID not found, -2 if fail to sync with cloud
 	 */
 	public static int UpdateCategoryName(int categoryID, String newName) {
 		try {
@@ -374,10 +377,10 @@ public class Helper {
 	}
 
 	/**
-	 * Return 1 if success, -1 if category with ID not found, -2 if fail to sync
-	 * with cloud
+	 * Removes a category by id Return 1 if success, -1 if category with ID not
+	 * found, -2 if fail to sync with cloud
 	 */
-	public static int UpdateCategoryName(int categoryID) {
+	public static int RemoveCategory(int categoryID) {
 		try {
 			currentUserPtr.categories.remove(categoryID);
 
