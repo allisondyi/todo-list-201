@@ -24,7 +24,4 @@ public class User {
 		
 	}
 	
-	public void AddCategory(String categoryName, List<TList> todoLists) {
-		categories.add(new Category(categoryName, todoLists));
-	}
 }
