@@ -45,24 +45,33 @@ public class ActionServlet extends HttpServlet {
 
 		// Retrieve action request
 		String requestedAction = jsonObject.get("action").getAsString();
-		JsonObject userData = jsonObject.getAsJsonObject("action_data");
+		JsonObject actionData = jsonObject.getAsJsonObject("action_data");
 
 		// Extract individual fields
-		String taskName = userData.has("tname") ? userData.get("tname").getAsString() : null;
-		String taskDescription = userData.has("tdescription") ? userData.get("tdescription").getAsString() : null;
-		String listName = userData.has("lname") ? userData.get("lname").getAsString() : null;
-		String categoryName = userData.has("cname") ? userData.get("cname").getAsString() : null;
+		String taskName = actionData.has("tname") ? actionData.get("tname").getAsString() : null;
+		String taskDescription = actionData.has("tdescription") ? actionData.get("tdescription").getAsString() : null;
+
+		// IMPORTANT!!: Category name and list name are not used for task
+		// creation/deletion/modification, use categoryID and listID because we could
+		// have same name for lists and categories. These are only used for creating a
+		// category and creating a list
+		String listName = actionData.has("lname") ? actionData.get("lname").getAsString() : null;
+		String categoryName = actionData.has("cname") ? actionData.get("cname").getAsString() : null;
 		// Date format DD/MM/YYYY
 		// Date can be null, ie. not provided upon task creation
-		String taskDueDate = userData.has("tdate") ? userData.get("tdate").getAsString() : null;
+		String taskDueDate = actionData.has("tdate") ? actionData.get("tdate").getAsString() : null;
 
 		boolean hasValidAddTaskFields = (taskName != null && taskName.trim().length() > 0 && taskDescription != null
-				&& taskDescription.trim().length() > 0 && listName != null && listName.trim().length() > 0  && categoryName != null && categoryName.trim().length() > 0);
-		
-		
+				&& taskDescription.trim().length() > 0);
+
+		int taskID = actionData.has("tID") ? actionData.get("tID").getAsInt() : -1;
+		int listID = actionData.has("lID") ? actionData.get("lID").getAsInt() : -1;
+		int categoryID = actionData.has("cID") ? actionData.get("cID").getAsInt() : -1;
 
 		switch (requestedAction) {
-		case "addTask":
+		// Add task needs taskname, taskdescp, listID (to add to), categoryID (category
+		// the list is in)
+		case "addTask": {
 			if (!hasValidAddTaskFields) {
 				// Reject with bad request, return error message as JSON
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -71,10 +80,30 @@ public class ActionServlet extends HttpServlet {
 				return;
 			}
 
-			// Here we have valid fields
-			int result = Helper.AuthenticateLogin(email, password);
-			if (result == 1) {
-				response.setStatus(HttpServletResponse.SC_OK);
+			// Validate has valid category ID
+			if (categoryID < 0) {
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson("Category ID not valid, must be >= 0"));
+				pw.flush();
+				return;
+			}
+
+			// Validate has valid list ID
+			if (listID < 0) {
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson("List ID not valid, must be >= 0"));
+				pw.flush();
+				return;
+			}
+
+			// Now we have valid IDs and stuff
+			int result = Helper.AddTask(taskName, taskDescription, taskDueDate, listID, categoryID);
+
+			String errorString = "Unexpected Error";
+			switch (result) {
+			case 1:
 				// Respond with User Json
 				// Convert the User object to a JSON string
 				User cloudUserData = Helper.GetCurrentUserData();
@@ -83,45 +112,62 @@ public class ActionServlet extends HttpServlet {
 				pw.flush();
 				// Test: Print the JSON string
 				System.out.println(cloudUserJson);
-			} else {
-				// Failed to authenticate
-				response.setStatus(HttpServletResponse.SC_OK);
-				String errorString = "No Registered Email";
-				if (result == -1) {
-					errorString = "Incorrect Password";
-				}
-				pw.write(gson.toJson(errorString));
-				pw.flush();
 				return;
+			case 0:
+				errorString = "Category with ID is not found";
+				break;
+			case -1:
+				errorString = "List with ID is not found";
+
+			case -2:
+				errorString = "Failed to sync with cloud";
+				break;
 			}
+			// Reject with bad request, return error message as JSON
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			pw.write(gson.toJson(errorString));
+			pw.flush();
+
 			break;
+		}
 
-		case "signup":
-			if (!hasValidLoginCredentials) {
+		// Remove task needs taskID, listID and categoryID
+		// the list is in)
+		case "removeTask": {
+
+			// Validate has valid task ID
+			if (taskID < 0) {
 				// Reject with bad request, return error message as JSON
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("Invalid Provided Login Credentials: Check email and password"));
+				pw.write(gson.toJson("Task ID not valid, must be >= 0"));
 				pw.flush();
 				return;
 			}
-			if (!hasValidUserCreationCredentials) {
+
+			// Validate has valid category ID
+			if (categoryID < 0) {
 				// Reject with bad request, return error message as JSON
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("Invalid Provided User Credentials: Check fname and lname"));
+				pw.write(gson.toJson("Category ID not valid, must be >= 0"));
 				pw.flush();
 				return;
 			}
 
-			// User has provided all valid details
-			// Check if no existing user, then proceed to register
+			// Validate has valid list ID
+			if (listID < 0) {
+				// Reject with bad request, return error message as JSON
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				pw.write(gson.toJson("List ID not valid, must be >= 0"));
+				pw.flush();
+				return;
+			}
 
-			if (Helper.AuthenticateLogin(email, password) == 0) {
-				// No user with this email found, we can proceed to register
-				Helper.AddUser(email, firstname, lastname, password);
+			// Now we have valid IDs and stuff
+			int result = Helper.RemoveTask(taskID, listID, categoryID);
 
-				// Note: Potential race condition? If fails could be due to adding user ->
-				// getting from cloud instead of immediate local cache
-				response.setStatus(HttpServletResponse.SC_OK);
+			String errorString = "Unexpected Error";
+			switch (result) {
+			case 1:
 				// Respond with User Json
 				// Convert the User object to a JSON string
 				User cloudUserData = Helper.GetCurrentUserData();
@@ -130,15 +176,24 @@ public class ActionServlet extends HttpServlet {
 				pw.flush();
 				// Test: Print the JSON string
 				System.out.println(cloudUserJson);
-			} else {
-				// User with email already exists
-				// Reject with bad request, return error message as JSON
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				pw.write(gson.toJson("User with email already exists"));
-				pw.flush();
 				return;
+			case 0:
+				errorString = "Category with ID is not found";
+				break;
+			case -1:
+				errorString = "List with ID is not found";
+
+			case -2:
+				errorString = "Failed to sync with cloud";
+				break;
 			}
+			// Reject with bad request, return error message as JSON
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			pw.write(gson.toJson(errorString));
+			pw.flush();
+
 			break;
+		}
 		}
 
 	}

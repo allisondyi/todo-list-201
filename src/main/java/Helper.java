@@ -132,13 +132,13 @@ public class Helper {
 	}
 /////////////Public: Core Task Modification Functions////////
 
-//Returns 1 if successful, 0 if category not found, -1 if list not found -2 if sync fail
-//Assumes inputs are not processed: not null and .trim.length > 0
-	public int AddTask(String taskName, String taskDescription, String dueDate, String listName, String categoryName) {
-		Category c = GetCategory(categoryName);
+/**Returns 1 if successful, 0 if category not found, -1 if list not found -2 if sync fail*/
+/**Assumes inputs are not processed: not null and .trim.length > 0*/
+	public static int AddTask(String taskName, String taskDescription, String dueDate, int listID, int categoryID) {
+		Category c = currentUserPtr.categories.get(categoryID);
 		if (c == null)
 			return 0;
-		TList tList = GetTList(listName, c);
+		TList tList = c.tlists.get(listID);
 		if (tList == null)
 			return -1;
 		int newTaskID = tList.tasks.size(); // Because we will be adding a new item to this list
@@ -158,10 +158,9 @@ public class Helper {
 		return -2;
 	}
 
-	// Removes the given taskID from todolist with listID inside category with
-	// categoryID
-	// 1 if success, 0 if listID invalid, -1 if categoryID invalid
-	public int RemoveTask(int taskID, int listID, int categoryID) {
+	/**Removes the given taskID from todolist with listID inside category with categoryID
+	 1 if success, 0 if listID invalid, -1 if categoryID invalid */
+	public static int RemoveTask(int taskID, int listID, int categoryID) {
 		try {
 			Category category = currentUserPtr.categories.get(categoryID);
 			if (category == null)
@@ -190,7 +189,7 @@ public class Helper {
 	// Public core function to update task due date
 	// 1 if success, 0 if task not found, -1 if due date parse fails, -2 if sync
 	// with cloud fails
-	public int UpdateTaskDueDate(int taskID, int listID, int categoryID, String duedateString) {
+	public static int UpdateTaskDueDate(int taskID, int listID, int categoryID, String duedateString) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
 			return 0;
@@ -208,7 +207,7 @@ public class Helper {
 	// Public core function to update task name 
 	// 1 if success, 0 if task not found, -1 if name not valid, -2 if sync fail
 	// with cloud fails
-	public int UpdateTaskName(int taskID, int listID, int categoryID, String newName) {
+	public static int UpdateTaskName(int taskID, int listID, int categoryID, String newName) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
 			return 0;
@@ -227,7 +226,7 @@ public class Helper {
 	// 1 if success, 0 if task not found, -1 if description not valid, -2 if sync
 	// fail
 	// with cloud fails
-	public int UpdateTaskDescription(int taskID, int listID, int categoryID, String newDescription) {
+	public static int UpdateTaskDescription(int taskID, int listID, int categoryID, String newDescription) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
 			return 0;
@@ -246,7 +245,7 @@ public class Helper {
 	// 1 if success, 0 if task not found, -2 if sync
 	// fail
 	// with cloud fails
-	public int UpdateTaskCompletionState(int taskID, int listID, int categoryID, boolean newState) {
+	public static int UpdateTaskCompletionState(int taskID, int listID, int categoryID, boolean newState) {
 		Task task = GetTask(taskID, listID, categoryID);
 		if (task == null)
 			return 0;
@@ -263,7 +262,7 @@ public class Helper {
 ///////////// Internal Helpers///////////////////////////
 	// Returns true if successfully set, returns false if failed to parse
 //This is the internal helper, for updating task due date, use UpdateTaskDueDate() as it will sync change
-	private boolean SetTaskDueDate(Task t, String dueDateString) {
+	private static boolean SetTaskDueDate(Task t, String dueDateString) {
 		String[] parts = dueDateString.split("/");
 
 		try {
